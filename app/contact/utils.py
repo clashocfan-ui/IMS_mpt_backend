@@ -3,8 +3,39 @@ import shutil
 import re
 from fastapi import HTTPException, UploadFile, File, status
 
-UPLOAD_DIR = "app/public"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "app/public")
+
+
+def _copy_existing_files(src, dst):
+    if not os.path.exists(src):
+        return
+    for root, dirs, files in os.walk(src):
+        rel_path = os.path.relpath(root, src)
+        dest_dir = os.path.join(dst, rel_path) if rel_path != "." else dst
+        os.makedirs(dest_dir, exist_ok=True)
+        for file in files:
+            src_file = os.path.join(root, file)
+            dest_file = os.path.join(dest_dir, file)
+            try:
+                shutil.copy2(src_file, dest_file)
+            except Exception as e:
+                print(f"Failed to copy {src_file} to {dest_file}: {e}")
+
+
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except Exception as e:
+    # If it fails (e.g. read-only filesystem on Vercel), fall back to /tmp/public
+    print(f"Warning: Failed to create upload directory '{UPLOAD_DIR}' ({e}). Falling back to temporary directory.")
+    fallback_dir = "/tmp/public"
+    try:
+        os.makedirs(fallback_dir, exist_ok=True)
+        # Copy existing public files to /tmp/public so they can be read/served
+        _copy_existing_files(UPLOAD_DIR, fallback_dir)
+        UPLOAD_DIR = fallback_dir
+    except Exception as fallback_err:
+        print(f"Error: Failed to create fallback directory '{fallback_dir}': {fallback_err}")
+
 
 
 def sanitize_filename(filename: str) -> str:

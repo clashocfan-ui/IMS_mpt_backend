@@ -14,6 +14,8 @@ from app.unit.router import router as unit
 from app.order.router import router as orders
 from app.config import client, env, fastapi_config
 from app.petty_cash.router import router as petty_cash
+from app.contact.utils import UPLOAD_DIR
+
 
 
 
@@ -50,7 +52,7 @@ app.add_middleware(
 )
 
 # Mount static files after middleware so responses go through middleware stack
-app.mount("/public", StaticFiles(directory="app/public"), name="public")
+app.mount("/public", StaticFiles(directory=UPLOAD_DIR), name="public")
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(product_router, prefix="/products", tags=["Product"])
@@ -83,7 +85,7 @@ def download_contact_file(file_name: str):
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file name"
         )
 
-    base_dir = os.path.join(os.path.dirname(__file__), "public", "contact")
+    base_dir = os.path.join(UPLOAD_DIR, "contact")
     file_path = os.path.join(base_dir, file_name)
 
     # Ensure resolved path is inside the base_dir
