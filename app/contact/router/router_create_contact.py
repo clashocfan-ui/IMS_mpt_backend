@@ -60,7 +60,6 @@ def create_contact(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Pydantic Validation Error. Please contact the developer. ${e}",
         )
-    print(payload)
     contact_data = svc.repository.create_contact(contact=payload)
 
     if not contact_data:
