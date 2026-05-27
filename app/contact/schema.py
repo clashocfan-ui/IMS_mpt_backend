@@ -10,13 +10,13 @@ class Contact(AppModel):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     name: str
     personal_number: str
-    office_number: Optional[str]
-    gstin: str
-    email: str
-    address: str
-    pincode: str
-    address_proof: str
-    company_name: str
+    office_number: Optional[str] = Field(default="")
+    gstin: Optional[str] = Field(default="")
+    email: Optional[str] = Field(default="")
+    address: Optional[str] = Field(default="")
+    pincode: Optional[str] = Field(default="")
+    address_proof: Optional[str] = Field(default="")
+    company_name: Optional[str] = Field(default="")
     remarks: str = Field(default="")
     branch: Branch = Field(default=Branch.PADUR)
     created_at: datetime = Field(

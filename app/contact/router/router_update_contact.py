@@ -21,13 +21,13 @@ async def update_contact(
     id: str,
     name: str = Form(...),
     personal_number: str = Form(...),
-    office_number: str = Form(...),
-    gstin: str = Form(...),
-    email: str = Form(...),
-    address: str = Form(...),
-    pincode: str = Form(...),
-    company_name: str = Form(...),
-    address_proof: str = Form(...),
+    office_number: Optional[str] = Form(default=""),
+    gstin: Optional[str] = Form(default=""),
+    email: Optional[str] = Form(default=""),
+    address: Optional[str] = Form(default=""),
+    pincode: Optional[str] = Form(default=""),
+    company_name: Optional[str] = Form(default=""),
+    address_proof: Optional[str] = Form(default=""),
     remarks: str = Form(default=""),
     branch: Branch = Form(default=Branch.PADUR),
     file: Optional[UploadFile] = File(None),
@@ -39,7 +39,7 @@ async def update_contact(
         filename = f"image_{unix_time}{ext}"
         handle_upload(new_filename=filename, file=file)
     else:
-        filename = os.path.basename(address_proof)
+        filename = os.path.basename(address_proof) if address_proof else ""
 
     payload = Contact(
         name=name,
@@ -67,9 +67,10 @@ async def update_contact(
         )
 
     try:
-        contact_data["address_proof"] = (
-            f"{env.image_domain}/public/contact/{contact_data['address_proof']}"
-        )
+        if contact_data.get("address_proof"):
+            contact_data["address_proof"] = (
+                f"{env.image_domain}/public/contact/{contact_data['address_proof']}"
+            )
         contact_data = Contact(**contact_data)
         return contact_data
     except ValidationError:

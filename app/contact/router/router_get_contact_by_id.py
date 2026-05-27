@@ -17,9 +17,10 @@ def get_contact_by_id(
         )
 
     try:
-        contact_data["address_proof"] = (
-            f"{env.image_domain}/public/contact/{contact_data['address_proof']}"
-        )
+        if contact_data.get("address_proof"):
+            contact_data["address_proof"] = (
+                f"{env.image_domain}/public/contact/{contact_data['address_proof']}"
+            )
         contact_data = Contact(**contact_data)
         return contact_data
     except ValidationError:
